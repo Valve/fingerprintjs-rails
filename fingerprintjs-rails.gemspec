@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["iamvalentin@gmail.com"]
   gem.description   = "fingerprintjs for rails asset pipeline"
   gem.summary       = ""
-  gem.homepage      = ""
+  gem.homepage      = "http://valve.github.com/fingerprintJS/"
 
   gem.files         = `git ls-files`.split($/)
   gem.require_paths = ["lib"]
