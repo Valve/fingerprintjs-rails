@@ -1,14 +1,14 @@
 /*
-* fingerprintJS 0.2 - Fast browser fingerprint library
+* fingerprintJS 0.3 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 */
 /*jslint browser: true, indent: 2 */
-(function() {
+(function(scope) {
   'use strict';
 
-  window.Fingerprint = function(hasher){
+  var Fingerprint = function(hasher){
     var nativeForEach = Array.prototype.forEach;
     var nativeMap = Array.prototype.map;
     this.each = function(obj, iterator, context) {
@@ -47,7 +47,8 @@
     get: function(){
       var keys = [];
       keys.push(navigator.userAgent);
-      keys.push([screen.height, screen.width, screen.colorDepth].join('x'));
+      keys.push(navigator.language);
+      keys.push(screen.colorDepth);
       keys.push(new Date().getTimezoneOffset());
       keys.push(!!window.sessionStorage);
       keys.push(!!window.localStorage);
@@ -130,4 +131,6 @@
       return h1 >>> 0;
     }
   }
-})();
+
+  scope.Fingerprint = Fingerprint;
+})(window);
