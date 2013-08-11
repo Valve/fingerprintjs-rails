@@ -1,5 +1,5 @@
 /*
-* fingerprintJS 0.3 - Fast browser fingerprint library
+* fingerprintJS 0.3.2 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
@@ -29,6 +29,8 @@
     };
     this.map = function(obj, iterator, context) {
       var results = [];
+      // Not using strict equality so that this acts as a
+      // shortcut to checking for `null` and `undefined`.
       if (obj == null) return results;
       if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
       this.each(obj, function(value, index, list) {
@@ -40,7 +42,7 @@
     if(hasher){
       this.hasher = hasher;
     }
-  }
+  };
 
   Fingerprint.prototype = {
 
@@ -50,8 +52,14 @@
       keys.push(navigator.language);
       keys.push(screen.colorDepth);
       keys.push(new Date().getTimezoneOffset());
-      keys.push(!!window.sessionStorage);
-      keys.push(!!window.localStorage);
+      keys.push(!!scope.sessionStorage);
+      keys.push(this.hasLocalStorage());
+      keys.push(!!window.indexedDB);
+      keys.push(typeof(document.body.addBehavior));
+      keys.push(typeof(window.openDatabase));
+      keys.push(navigator.cpuClass);
+      keys.push(navigator.platform);
+      keys.push(navigator.doNotTrack);
       var pluginsString = this.map(navigator.plugins, function(p){
         var mimeTypes = this.map(p, function(mt){
           return [mt.type, mt.suffixes].join('~');
@@ -129,8 +137,17 @@
       h1 ^= h1 >>> 16;
 
       return h1 >>> 0;
+    },
+
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=781447
+    hasLocalStorage: function(){
+      try{
+        return !!scope.localStorage;
+      } catch(e) {
+        return true; // SecurityError when referencing it means it exists
+      }
     }
-  }
+  };
 
   scope.Fingerprint = Fingerprint;
 })(window);
