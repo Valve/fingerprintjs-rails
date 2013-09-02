@@ -1,5 +1,5 @@
 /*
-* fingerprintJS 0.3.2 - Fast browser fingerprint library
+* fingerprintJS 0.4.1 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
@@ -8,7 +8,7 @@
 (function(scope) {
   'use strict';
 
-  var Fingerprint = function(hasher){
+  var Fingerprint = function(options){
     var nativeForEach = Array.prototype.forEach;
     var nativeMap = Array.prototype.map;
     this.each = function(obj, iterator, context) {
@@ -38,9 +38,11 @@
       });
       return results;
     };
-
-    if(hasher){
-      this.hasher = hasher;
+    if(typeof options == 'object'){
+      this.hasher = options.hasher;
+      this.canvas = options.canvas;
+    } else if(typeof options == 'function'){
+      this.hasher = options;
     }
   };
 
@@ -67,6 +69,9 @@
         return [p.name, p.description, mimeTypes].join('::');
       }, this).join(';');
       keys.push(pluginsString);
+      if(this.canvas && this.isCanvasSupported()){
+        keys.push(this.getCanvasFingerprint());
+      }
       if(this.hasher){
         return this.hasher(keys.join('###'), 31);
       } else {
@@ -88,7 +93,7 @@
      */
 
     murmurhash3_32_gc: function(key, seed) {
-      var remainder, bytes, h1, h1b, c1, c1b, c2, c2b, k1, i;
+      var remainder, bytes, h1, h1b, c1, c2, k1, i;
       
       remainder = key.length & 3; // key.length % 4
       bytes = key.length - remainder;
@@ -146,6 +151,28 @@
       } catch(e) {
         return true; // SecurityError when referencing it means it exists
       }
+    },
+
+    isCanvasSupported: function(){
+      var elem = document.createElement('canvas');
+      return !!(elem.getContext && elem.getContext('2d'));
+    },
+
+    getCanvasFingerprint: function(){
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      // https://www.browserleaks.com/canvas#how-does-it-work
+      var txt = 'http://valve.github.io';
+      ctx.textBaseline = "top";
+      ctx.font = "14px 'Arial'";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = "#f60";
+      ctx.fillRect(125,1,62,20);
+      ctx.fillStyle = "#069";
+      ctx.fillText(txt, 2, 15);
+      ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+      ctx.fillText(txt, 4, 17);
+      return canvas.toDataURL();
     }
   };
 
