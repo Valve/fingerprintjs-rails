@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name          = "fingerprintjs-rails"
-  gem.version       = "0.3.2" 
+  gem.version       = "0.4.1"
   gem.authors       = ["Valentin Vasilyev"]
   gem.email         = ["iamvalentin@gmail.com"]
   gem.description   = "fingerprintjs for rails asset pipeline"
