@@ -1,5 +1,5 @@
 /*
-* fingerprintJS 0.4.1 - Fast browser fingerprint library
+* fingerprintJS 0.4.2 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
@@ -54,7 +54,7 @@
       keys.push(navigator.language);
       keys.push(screen.colorDepth);
       keys.push(new Date().getTimezoneOffset());
-      keys.push(!!scope.sessionStorage);
+      keys.push(this.hasSessionStorage());
       keys.push(this.hasLocalStorage());
       keys.push(!!window.indexedDB);
       keys.push(typeof(document.body.addBehavior));
@@ -152,6 +152,14 @@
         return true; // SecurityError when referencing it means it exists
       }
     },
+    
+    hasSessionStorage: function(){
+      try{
+        return !!scope.sessionStorage;
+      } catch(e) {
+        return true; // SecurityError when referencing it means it exists
+      }
+    },
 
     isCanvasSupported: function(){
       var elem = document.createElement('canvas');
@@ -176,5 +184,8 @@
     }
   };
 
+  if (typeof module === 'object' && typeof exports === 'object') {
+    module.exports = Fingerprint;
+  }
   scope.Fingerprint = Fingerprint;
 })(window);
