@@ -1,19 +1,23 @@
 /*
-* fingerprintJS 0.4.2 - Fast browser fingerprint library
+* fingerprintJS 0.5.0 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 */
-/*jslint browser: true, indent: 2 */
-(function(scope) {
+/*jslint browser: true, indent: 2, maxerr: 50, maxlen: 120 */
+(function (scope) {
   'use strict';
 
-  var Fingerprint = function(options){
-    var nativeForEach = Array.prototype.forEach;
-    var nativeMap = Array.prototype.map;
-    this.each = function(obj, iterator, context) {
-      if(obj === null) return;
-      if(nativeForEach && obj.forEach === nativeForEach) {
+  var Fingerprint = function (options) {
+    var nativeForEach, nativeMap;
+    nativeForEach = Array.prototype.forEach;
+    nativeMap = Array.prototype.map;
+
+    this.each = function (obj, iterator, context) {
+      if (obj === null) {
+        return;
+      }
+      if (nativeForEach && obj.forEach === nativeForEach) {
         obj.forEach(iterator, context);
       } else if (obj.length === +obj.length) {
         for (var i = 0, l = obj.length; i < l; i++) {
@@ -27,6 +31,7 @@
         }
       }
     };
+
     this.map = function(obj, iterator, context) {
       var results = [];
       // Not using strict equality so that this acts as a
@@ -38,21 +43,29 @@
       });
       return results;
     };
-    if(typeof options == 'object'){
+
+    if (typeof options == 'object'){
       this.hasher = options.hasher;
+      this.screen_resolution = options.screen_resolution;
       this.canvas = options.canvas;
+      this.ie_activex = options.ie_activex;
     } else if(typeof options == 'function'){
       this.hasher = options;
     }
   };
 
   Fingerprint.prototype = {
-
     get: function(){
       var keys = [];
       keys.push(navigator.userAgent);
       keys.push(navigator.language);
       keys.push(screen.colorDepth);
+      if (this.screen_resolution) {
+        var resolution = this.getScreenResolution();
+        if (typeof resolution !== 'undefined'){ // headless browsers, such as phantomjs
+          keys.push(this.getScreenResolution().join('x'));
+        }
+      }
       keys.push(new Date().getTimezoneOffset());
       keys.push(this.hasSessionStorage());
       keys.push(this.hasLocalStorage());
@@ -62,13 +75,7 @@
       keys.push(navigator.cpuClass);
       keys.push(navigator.platform);
       keys.push(navigator.doNotTrack);
-      var pluginsString = this.map(navigator.plugins, function(p){
-        var mimeTypes = this.map(p, function(mt){
-          return [mt.type, mt.suffixes].join('~');
-        }).join(',');
-        return [p.name, p.description, mimeTypes].join('::');
-      }, this).join(';');
-      keys.push(pluginsString);
+      keys.push(this.getPluginsString());
       if(this.canvas && this.isCanvasSupported()){
         keys.push(this.getCanvasFingerprint());
       }
@@ -145,7 +152,7 @@
     },
 
     // https://bugzilla.mozilla.org/show_bug.cgi?id=781447
-    hasLocalStorage: function(){
+    hasLocalStorage: function () {
       try{
         return !!scope.localStorage;
       } catch(e) {
@@ -153,7 +160,7 @@
       }
     },
     
-    hasSessionStorage: function(){
+    hasSessionStorage: function () {
       try{
         return !!scope.sessionStorage;
       } catch(e) {
@@ -161,12 +168,72 @@
       }
     },
 
-    isCanvasSupported: function(){
+    isCanvasSupported: function () {
       var elem = document.createElement('canvas');
       return !!(elem.getContext && elem.getContext('2d'));
     },
 
-    getCanvasFingerprint: function(){
+    isIE: function () {
+      if(navigator.appName === 'Microsoft Internet Explorer') {
+        return true;
+      } else if(navigator.appName === 'Netscape' && /Trident/.test(navigator.userAgent)){// IE 11
+        return true;
+      }
+      return false;
+    },
+
+    getPluginsString: function () {
+      if(this.isIE()){
+        return this.getIEPluginsString();
+      } else {
+        return this.getRegularPluginsString();
+      }
+    },
+
+    getRegularPluginsString: function () {
+      return this.map(navigator.plugins, function (p) {
+        var mimeTypes = this.map(p, function(mt){
+          return [mt.type, mt.suffixes].join('~');
+        }).join(',');
+        return [p.name, p.description, mimeTypes].join('::');
+      }, this).join(';');
+    },
+
+    getIEPluginsString: function () {
+      var names = ['ShockwaveFlash.ShockwaveFlash',//flash plugin
+        'AcroPDF.PDF', // Adobe PDF reader 7+
+        'PDF.PdfCtrl', // Adobe PDF reader 6 and earlier, brrr
+        'QuickTime.QuickTime', // QuickTime
+        // 5 versions of real players
+        'rmocx.RealPlayer G2 Control',
+        'rmocx.RealPlayer G2 Control.1',
+        'RealPlayer.RealPlayer(tm) ActiveX Control (32-bit)',
+        'RealVideo.RealVideo(tm) ActiveX Control (32-bit)',
+        'RealPlayer',
+        'SWCtl.SWCtl', // ShockWave player
+        'WMPlayer.OCX', // Windows media player
+        'AgControl.AgControl', // Silverlight
+        'Skype.Detection'];
+      if(this.ie_activex && scope.ActiveXObject){
+        // starting to detect plugins in IE
+        return this.map(names, function(name){
+          try{
+            new ActiveXObject(name);
+            return name;
+          } catch(e){
+            return null;
+          }
+        }).join(';');
+      } else {
+        return ""; // behavior prior version 0.5.0, not breaking backwards compat.
+      }
+    },
+
+    getScreenResolution: function () {
+      return [screen.height, screen.width];
+    },
+
+    getCanvasFingerprint: function () {
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       // https://www.browserleaks.com/canvas#how-does-it-work
@@ -183,6 +250,7 @@
       return canvas.toDataURL();
     }
   };
+
 
   if (typeof module === 'object' && typeof exports === 'object') {
     module.exports = Fingerprint;
