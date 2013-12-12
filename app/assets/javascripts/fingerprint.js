@@ -1,10 +1,9 @@
 /*
-* fingerprintJS 0.5.0 - Fast browser fingerprint library
+* fingerprintJS 0.5.1 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 */
-/*jslint browser: true, indent: 2, maxerr: 50, maxlen: 120 */
 (function (scope) {
   'use strict';
 
@@ -70,7 +69,12 @@
       keys.push(this.hasSessionStorage());
       keys.push(this.hasLocalStorage());
       keys.push(!!window.indexedDB);
-      keys.push(typeof(document.body.addBehavior));
+      //body might not be defined at this point or removed programmatically
+      if(document.body){
+        keys.push(typeof(document.body.addBehavior));
+      } else {
+        keys.push(typeof undefined);
+      }
       keys.push(typeof(window.openDatabase));
       keys.push(navigator.cpuClass);
       keys.push(navigator.platform);
