@@ -4,9 +4,9 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name          = "fingerprintjs-rails"
-  gem.version       = "0.5.1"
+  gem.version       = "0.5.2"
   gem.authors       = ["Valentin Vasilyev"]
-  gem.email         = ["iamvalentin@gmail.com"]
+  gem.email         = ["valentin.vasilyev@outlook.com"]
   gem.description   = "fingerprintjs for rails asset pipeline"
   gem.summary       = "FingerprintJS JavaScript library, packaged for Ruby-on-Rails asset pipeline"
   gem.homepage      = "http://valve.github.com/fingerprintjs"

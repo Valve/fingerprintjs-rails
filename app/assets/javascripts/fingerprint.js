@@ -1,12 +1,17 @@
 /*
-* fingerprintJS 0.5.1 - Fast browser fingerprint library
+* fingerprintJS 0.5.2 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
 * Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 */
-(function (scope) {
-  'use strict';
 
+;(function (name, context, definition) {
+  if (typeof module !== 'undefined' && module.exports) { module.exports = definition(); }
+  else if (typeof define === 'function' && define.amd) { define(definition); }
+  else { context[name] = definition(); }
+})('Fingerprint', this, function () {
+  'use strict';
+  
   var Fingerprint = function (options) {
     var nativeForEach, nativeMap;
     nativeForEach = Array.prototype.forEach;
@@ -256,8 +261,6 @@
   };
 
 
-  if (typeof module === 'object' && typeof exports === 'object') {
-    module.exports = Fingerprint;
-  }
-  scope.Fingerprint = Fingerprint;
-})(window);
+  return Fingerprint;
+
+});
