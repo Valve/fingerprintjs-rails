@@ -1,7 +1,7 @@
 /*
-* fingerprintJS 0.5.2 - Fast browser fingerprint library
+* fingerprintJS 0.5.3 - Fast browser fingerprint library
 * https://github.com/Valve/fingerprintjs
-* Copyright (c) 2013 Valentin Vasilyev (iamvalentin@gmail.com)
+* Copyright (c) 2013 Valentin Vasilyev (valentin.vasilyev@outlook.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 */
 
@@ -163,7 +163,7 @@
     // https://bugzilla.mozilla.org/show_bug.cgi?id=781447
     hasLocalStorage: function () {
       try{
-        return !!scope.localStorage;
+        return !!window.localStorage;
       } catch(e) {
         return true; // SecurityError when referencing it means it exists
       }
@@ -171,7 +171,7 @@
     
     hasSessionStorage: function () {
       try{
-        return !!scope.sessionStorage;
+        return !!window.sessionStorage;
       } catch(e) {
         return true; // SecurityError when referencing it means it exists
       }
@@ -192,7 +192,7 @@
     },
 
     getPluginsString: function () {
-      if(this.isIE()){
+      if(this.isIE() && this.ie_activex){
         return this.getIEPluginsString();
       } else {
         return this.getRegularPluginsString();
@@ -209,21 +209,22 @@
     },
 
     getIEPluginsString: function () {
-      var names = ['ShockwaveFlash.ShockwaveFlash',//flash plugin
-        'AcroPDF.PDF', // Adobe PDF reader 7+
-        'PDF.PdfCtrl', // Adobe PDF reader 6 and earlier, brrr
-        'QuickTime.QuickTime', // QuickTime
-        // 5 versions of real players
-        'rmocx.RealPlayer G2 Control',
-        'rmocx.RealPlayer G2 Control.1',
-        'RealPlayer.RealPlayer(tm) ActiveX Control (32-bit)',
-        'RealVideo.RealVideo(tm) ActiveX Control (32-bit)',
-        'RealPlayer',
-        'SWCtl.SWCtl', // ShockWave player
-        'WMPlayer.OCX', // Windows media player
-        'AgControl.AgControl', // Silverlight
-        'Skype.Detection'];
-      if(this.ie_activex && scope.ActiveXObject){
+      if(window.ActiveXObject){
+        var names = ['ShockwaveFlash.ShockwaveFlash',//flash plugin
+          'AcroPDF.PDF', // Adobe PDF reader 7+
+          'PDF.PdfCtrl', // Adobe PDF reader 6 and earlier, brrr
+          'QuickTime.QuickTime', // QuickTime
+          // 5 versions of real players
+          'rmocx.RealPlayer G2 Control',
+          'rmocx.RealPlayer G2 Control.1',
+          'RealPlayer.RealPlayer(tm) ActiveX Control (32-bit)',
+          'RealVideo.RealVideo(tm) ActiveX Control (32-bit)',
+          'RealPlayer',
+          'SWCtl.SWCtl', // ShockWave player
+          'WMPlayer.OCX', // Windows media player
+          'AgControl.AgControl', // Silverlight
+          'Skype.Detection'];
+          
         // starting to detect plugins in IE
         return this.map(names, function(name){
           try{
