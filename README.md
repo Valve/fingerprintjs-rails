@@ -1,7 +1,7 @@
 fingerprintJS
 =============
  <h3>
-  🔥<a href="https://fingerprintjs.com">FingerprintJS Pro - Most accurate business solutio0n</a>🔥
+  🔥<a href="https://fingerprintjs.com">FingerprintJS Pro - Most accurate business solution for device identification</a>🔥
   </h3>
 Fast browser fingerprint library. Written in pure JavaScript, no dependencies. 
 By default uses [Murmur hashing][murmur] and returns a 32bit integer number.
